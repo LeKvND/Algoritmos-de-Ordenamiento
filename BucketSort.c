@@ -5,9 +5,10 @@
 #include <pthread.h>
 #include <time.h>
 #define NUM_HILOS 5
+//Compilar con gcc BucketSort.c -lpthread
 
 int I=0;
-
+int numerocubetas;
 
 void swap(int *xp, int *yp){ 
     int temp = *xp; 
@@ -31,21 +32,17 @@ void printArray(int arr[], int size){
     printf("\n"); 
 } 
 
-void *codigo_del_hilo(void *arreglo[][//dimension_a_dar]){
-    int i= //posicion de esta cubeta
-    int n = sizeof(arreglo[i][])/sizeof(arreglo[i][0]); 
+void *codigo_del_hilo(void *arreglo[]){
+    //int i= 0; //posicion de esta cubeta
+    int n = sizeof(arreglo)/sizeof(arreglo[0]); 
     bubbleSort(arreglo, n);
-    //int i;
-    //for(i=0;i<50;i++)
-        //printf("Hilo %d: i=%d, I=%d\n",*(int*)id,i,I++);
+    printArray(arreglo,n);
     printf("Entraste al hilo bro");
     pthread_exit(arreglo);
 }
 
 
 
-//0-999
-//999/cubetas
 
 
 
@@ -60,7 +57,7 @@ void main(int argc, char *argv[]){
     int *salida;
     int arreglogrande[3500];
     int hora = time(NULL);  
-    int numerocubetas;
+    int tamanioarreglomini;
 
     for(int contador = 0; contador<3500; contador++){ //Generar numeros  
   
@@ -73,12 +70,19 @@ void main(int argc, char *argv[]){
     scanf("%d",&numerocubetas);
 
     tamanioarreglomini=999/numerocubetas;
-    int arreglosmini[numerocubetas][tamanioarreglomini];
+    int arreglosmini[numerocubetas][3500];
     
     for(int j=0;j<3500;j++){//recorre todo el arreglo grande
-        
-        if(arreglogrande[j]>0)
-        //Mover a cubeta correspondiente
+
+        for(int k=0;k<numerocubetas;k++){
+
+        if(arreglogrande[j]<tamanioarreglomini*k){
+            arreglosmini[k][/*la posicion*/]=arreglogrande[j]
+        }
+
+
+        }
+
 
     }
 
@@ -87,7 +91,7 @@ void main(int argc, char *argv[]){
 
 
     for(h=0;h<numerocubetas;h++){
-        error=pthread_create(&hilos[h],NULL,codigo_del_hilo,arreglosmini);
+        error=pthread_create(&hilos[h],NULL,codigo_del_hilo,arreglosmini[/*mandar arreglo bidimensional de acuerdo a h*/]);
         if(error){
             fprintf(stderr,"Error %d; %s\n",error,strerror(error));
             exit(-1);
