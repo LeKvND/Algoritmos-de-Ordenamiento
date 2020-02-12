@@ -12,45 +12,42 @@ int I=0;
 int numerocubetas;
 int tamanios[100];
 int contador=0;
-void swap(int *xp, int *yp){ 
-    int temp = *xp; 
-    *xp = *yp; 
-    *yp = temp; 
+
+
+void swap(int* a, int* b){ 
+    int t = *a; 
+    *a = *b; 
+    *b = t; 
 } 
   
+
 void bubbleSort(int arr[], int n){ 
    int i, j; 
-   for (i = 0; i < n-1; i++)       
+   for (i = 0; i < n-1; i++){       
     
-       for (j = 0; j < n-i-1; j++)  
-           if (arr[j] > arr[j+1]) 
+       for (j = 0; j < n-i-1; j++){
+           if (arr[j] > arr[j+1]){
               swap(&arr[j], &arr[j+1]); 
+            }
+        }
+   }
 } 
   
-void printArray(int arr[], int size){ 
-    int i; 
-    for (i=0; i < size; i++) 
-        printf("%d ", arr[i]); 
-    printf("\n"); 
-} 
 
 void *codigo_del_hilo(void *arreglo){
-    int size;
-
+    
+    int size=0;
 
     pthread_mutex_lock(&lock);
+    printf("\n\nHilo %d iniciado",contador);
     printf("\n\nNumero de elementos que tiene la canasta %d: %d",contador,tamanios[contador]);
-    size = tamanios[contador];//Method
+    size = tamanios[contador];
     contador++;
     pthread_mutex_unlock(&lock);
-
  
     bubbleSort(arreglo, size);
-    //printf("Se ordenaron: \n\n");
-    //printArray(arreglo,size);
-
-
     pthread_exit(arreglo);
+
 }
 
 
@@ -62,33 +59,34 @@ void *codigo_del_hilo(void *arreglo){
      
 
 void main(int argc, char *argv[]){
+    
     int h;
     pthread_t hilos[NUM_HILOS];
-    //int id[NUM_HILOS]={1,2,3,4,5};
     int error;
     int *salida;
     int arreglogrande[3500];
     int hora = time(NULL);  
     int tamanioarreglomini;
 
-    for(int contador = 0; contador<3500; contador++){ //Generar numeros  
+    for(int contador2 = 0; contador2<3500; contador2++){ //Generar numeros  
   
-        arreglogrande[contador] = rand()%999;  
+        arreglogrande[contador2] = rand()%999;  
                  
     }  
 
 
-    printf("Cuantas cubetas desea");
+    printf("Cuantas cubetas desea: ");
     scanf("%d",&numerocubetas);
 
     tamanioarreglomini=999/numerocubetas;
     int arreglosmini[numerocubetas][3500];
     int posicion[numerocubetas];
-    for(int t=0;t<numerocubetas;t++){
+
+    for(int t=0;t<numerocubetas;t++){           //rellena con 0's el arreglo posicion
         posicion[t]=0;
     }
 
-    for(int j=0;j<3500;j++){//recorre todo el arreglo grande
+    for(int j=0;j<3500;j++){//recorre todo el arreglo grande y clasifica
 
         for(int k=0;k<numerocubetas;k++){
 
@@ -102,63 +100,60 @@ void main(int argc, char *argv[]){
 
 
     }
-printf("Estos son los numeros que se generaron:\n");
+
+
+    
+printf("Estos son los numeros que se generaron:\n\n");            //imprime absolutamente todo el arreglo grande
 for(int o=0;o<3500;o++){
-    printf("%d,",arreglogrande[o]);
+    printf("%d, ",arreglogrande[o]);
 }
-/*
-for(int y=0;y<numerocubetas;y++){
 
-printf("Tamaño de el arreglo posicion en %d, posicion: %d",y,posicion[y]);
-
-}
-*/
-for(int g=0;g<numerocubetas;g++){
+for(int g=0;g<numerocubetas;g++){                               //mete a un arreglo global el arreglo que dice la cantidad que hay en cada uno
     tamanios[g]=posicion[g];
 }
 
 for(int o=0;o<numerocubetas;o++){
-    printf("Estos son los numeros que se guardaron en la cubeta %d :\n",o);
-    for(int m=0;m<100;m++){
+    printf("\n\nEstos son los numeros que se guardaron en la cubeta %d :\n",o);
+    for(int m=0;m<tamanios[o];m++){
     printf("%d,",arreglosmini[o][m]);}
 }
-printf("\n\n\nDEBUG\n\n\n");
-for(int j=0;j<tamanios[5];j++){
-    printf("%d,",arreglosmini[5][j]);
+
+
+contador=0;
+for(h=0;h<numerocubetas;h++){
+    error=pthread_create(&hilos[h],NULL,codigo_del_hilo,arreglosmini[h]);
+    if(error){
+        fprintf(stderr,"Error %d; %s\n",error,strerror(error));
+        exit(-1);
+    }
 }
 
-
-
-
-    for(h=0;h<numerocubetas;h++){
-        error=pthread_create(&hilos[h],NULL,codigo_del_hilo,arreglosmini[h]);
-        if(error){
-            fprintf(stderr,"Error %d; %s\n",error,strerror(error));
-            exit(-1);
-        }
-    }
-    for(h=0;h<numerocubetas;h++){
-        error=pthread_join(hilos[h],(void**)&salida);
-    }
-    if(error)
-        fprintf(stderr, "error %d: %s\n",error,strerror(error));
-    else
-    {
-        printf("\n\nHilo %d terminado\n",*salida);
-    }
+for(h=0;h<numerocubetas;h++){
+    error=pthread_join(hilos[h],(void**)&salida);
+}
+if(error)
+    fprintf(stderr, "error %d: %s\n",error,strerror(error));
+else
+{
+    //printf("\n\nHilo %d terminado\n",*salida);
+}
     
-    printf("\n\n\nDEBUG\n\n\n");
-for(int j=0;j<tamanios[5];j++){
-    printf("%d,",arreglosmini[5][j]);
-}
 
 
 
 
     for(int d=0;d<numerocubetas;d++){
-        printf("numero de cubeta %d\n",d);
+        printf("\n\nnumeros ordenados que estan en la cubeta %d: \n\n",d);
+        
         for(int n=0;n<tamanios[d];n++){
-            printf("%d, ",arreglosmini[d][n]);
+            if(arreglosmini[d][n]!=0)printf("%d, ",arreglosmini[d][n]);
+        }
+    }
+        printf("\n\nNumeros ordenados: \n\n");
+        for(int d=0;d<numerocubetas;d++){
+       
+        for(int n=0;n<tamanios[d];n++){
+            if(arreglosmini[d][n]!=0)printf("%d, ",arreglosmini[d][n]);
         }
     }
 }
